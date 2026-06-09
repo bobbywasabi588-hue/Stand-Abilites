@@ -272,7 +272,7 @@ function module:T() -- ranged attack
 
 	gbutility.FireClientsInRadius(self.Char, effect, "Global", "PlaySound", script.StarFingerSound, self.Model.HumanoidRootPart, 3)
 	gbutility.FireClientsInRadius(self.Char, effect, "Global", "SpawnVfx", game.ReplicatedStorage.Vfx["Star Platinum"].StarFinger, self.Char["Torso"].CFrame * CFrame.new(0,0,-8), 2)
-	local hit = damage.Hitbox(self.Char, self.Char.HumanoidRootPart.CFrame * CFrame.new(0,0,-6), Vector3.new(2,2,12), "Star Platinum", "Star Finger") -- returns the characters bound in the box
+	local hit = damage.Hitbox(self.Char, self.Char.HumanoidRootPart.CFrame * CFrame.new(0,0,-6), Vector3.new(2,2,12), "Star Platinum", "Star Finger") -- gets the characters bound in the box
 	for i, char in pairs(hit) do
 		damage.DamageAndStun(self.Char, 95 * (1 + (self.Data.Stats["Destructive Power"] * 0.025)), char, 0.5) -- damages and stuns the players with stats scaling
 	end
@@ -603,7 +603,7 @@ function module:X() -- beatdown attack
 			att1.Parent = attackerRoot
 			att1.Position = Vector3.new(0, 0, -5)
 
-			local alignPos = Instance.new("AlignPosition") -- keeps the victim in place as the animation runs
+			local alignPos = Instance.new("AlignPosition") -- this keeps the victim in place as the animation runs
 			alignPos.Attachment0 = att0
 			alignPos.Attachment1 = att1
 			alignPos.RigidityEnabled = true
@@ -625,7 +625,7 @@ function module:X() -- beatdown attack
 				
 			end
 			
-			task.spawn(function() -- barrages of punches
+			task.spawn(function() -- barrage of punches
 				for i = 1, 17 do
 					if not self.Char or self.Char.Humanoid.Health <= 0 or states.GetState(self.Char, "Stunned") then return end
 
