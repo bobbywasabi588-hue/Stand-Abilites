@@ -1,3 +1,4 @@
+-- this is the stand abilites script made by me eli, discord: Bobby36746 
 local module = {}
 local utility = require(game.ServerScriptService:WaitForChild("StandUtility"))
 local gbutility = require(game.ServerScriptService:WaitForChild("Utility"))
