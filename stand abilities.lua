@@ -65,9 +65,6 @@ function module.new(player, model)
 		end
 	end)
 	)
-
-	
-	
 	gbutility.FireClientsInRadius(self.Char, effect, "Global", "PlaySound", script.SummonLine, self.Char.HumanoidRootPart, 2)
 	gbutility.FireClientsInRadius(self.Char, effect, "Global", "PlaySound", script.SummonSound, self.Char.HumanoidRootPart, 2)
 	
@@ -126,14 +123,9 @@ function module:M1(animtion)
 		currentCombo = 1
 	end
 	utility.MoveStand(self.Char, CFrame.new(0,0,-3))
-	
-	states.SetState(self.Char, "PunchHold", 0.7)
+
 	states.SetAttacking(self.Char, 0.2, 6)
-
-
-
-
-
+	
 	local anim = self.Anims["M"..currentCombo]
 	anim.Priority = Enum.AnimationPriority.Action2
 
@@ -218,7 +210,6 @@ function module:E()
 	states.SetState(self.Char, "EMoveCD", 13)
 	states.SetState(self.Char, "DoingBarrage", 3.3)
 
-	states.SetState(self.Char, "PunchHold", 3)
 	local arms = {"Right Arm", "Left Arm"}
 
 
@@ -254,7 +245,6 @@ function module:E()
 		if not states.GetState(self.Char, "Attacking") then
 			utility.MoveStand(self.Char, CFrame.new(-2,1,2))
 		end
-		states.RemoveState(self.Char, "PunchHold")
 		states.RemoveState(self.Char, "Attacking")
 	end)
 end
@@ -266,13 +256,11 @@ function module:T()
 	if states.GetState(self.Char, "TMoveCD") then return end
 	if states.GetState(self.Char, "Blocking") then return end
 	if not self.Char:GetAttribute("StandEquipped") then return end
-
+	
 	utility.MoveStand(self.Char, CFrame.new(0,0,-3))
 	states.SetAttacking(self.Char, 1, 6)
-	
 	states.SetState(self.Char, "TMoveCD", 8)
-	states.SetState(self.Char, "PunchHold", 1.55)
-	
+
 	local anim = self.Anims["Star Finger"] 
 	anim:Play()
 	gbutility.FireClientsInRadius(self.Char, effect, "Global", "PlaySound", script.StarFingerLine, self.Model.HumanoidRootPart, 3)
@@ -305,7 +293,6 @@ function module:R()
 	states.SetAttacking(self.Char, 0.75, 6)
 
 	states.SetState(self.Char, "RMoveCD", 1)
-	states.SetState(self.Char, "PunchHold", 1.55)
 
 	local anim = self.Anims["Hard Right"]
 
@@ -313,7 +300,6 @@ function module:R()
 	local conn
 	 conn = anim:GetMarkerReachedSignal("Hit"):Connect(function()
 		if not self.Char or self.Char.Humanoid.Health <= 0 or states.GetState(self.Char, "Stunned") then return end
-
 		print("hit")
 		local hit = damage.Hitbox(self.Char, self.Char.HumanoidRootPart.CFrame * CFrame.new(0,0,-3), Vector3.new(5,5,5), "Star Platinum", "Ora")
 		for i, char in pairs(hit) do
@@ -348,25 +334,25 @@ function module:EEnd()
 
 	if self.Anims["Barrage"] then
 	self.Anims["Barrage"]:Stop()
-	
 	end
+	
 	if self.Sounds["Barrage"] then
 	self.Sounds["Barrage"]:Destroy()
 	self.Sounds["Barrage"] = nil
 	end
+	
 	for i, v in pairs(self.Model["Right Arm"]:GetChildren()) do
 	 if v and v:IsA("Trail") or v:IsA("Attachment") then
 		v:Destroy()
 	 end
 	end
+	
 	for i, v in pairs(self.Model["Left Arm"]:GetChildren()) do
 	 if v and v:IsA("Trail") or v:IsA("Attachment") then
 		v:Destroy()
 	 end
 	end
 	remotes.EventEffect:FireAllClients("Global", "DestroyVfxOnChar", self.Char, "Barrage")
-
-	
 end
 
 function module:V() 
@@ -414,12 +400,8 @@ function module:V()
 	if closestChar then
 		local targetHRP = closestChar:FindFirstChild("HumanoidRootPart")
 		local hum = self.Char:FindFirstChild("Humanoid")
-	
-
+		
 		if targetHRP and hum then
-			
-			
-
 			local behindPos = targetHRP.Position - targetHRP.CFrame.LookVector * 3.5
 			local lookCF = CFrame.lookAt(behindPos, targetHRP.Position)
 			
@@ -441,7 +423,6 @@ function module:V()
 				remotes.EventEffect:FireClient(enemyplr, "Star Platinum", "Teleportfx")
 				remotes.CameraShake:FireClient(enemyplr, 1,7)
 				end
-			
 		end
 	end
 end
@@ -462,7 +443,6 @@ function module:C()
 	anim2:Play()
 	
 	task.delay(1, function()
-		
 		anim2:Stop()
 	end)
 	local plrs = {}
@@ -504,19 +484,11 @@ function module:C()
 		local root = v:FindFirstChild("HumanoidRootPart")
 		local enemyhum = v:FindFirstChild("Humanoid")
 		if enemyhum and root then
-
 			states.SetState(v, "Timestopped", 4)
-
-		
 			enemyhum.WalkSpeed = 0
 			enemyhum.JumpPower = 0
-
-			
 			root.AssemblyLinearVelocity = Vector3.zero
 			root.AssemblyAngularVelocity = Vector3.zero
-
-		
-		
 		end
 		end
 	for i, v in pairs(plrs) do
@@ -528,13 +500,10 @@ function module:C()
 		end
 		gbutility.FireClientsInRadius(self.Char, effect, "Global", "PlaySound", script.timeresume, self.Char.HumanoidRootPart, 3)
 		gbutility.FireClientsInRadius(self.Char, effect, "Global", "PlaySound", script.timeresumeline, self.Char.HumanoidRootPart, 3)
-
-		
 	end)
 task.delay(1, function()
 	gbutility.FireClientsInRadius(self.Char, effect, "Global", "PlaySound", script.clocktick, self.Char.HumanoidRootPart, 3)
 end)
-
 end
 
 function module:Block()
@@ -542,7 +511,6 @@ function module:Block()
 	if states.GetState(self.Char, "Attacking") then return end
 	if states.GetState(self.Char, "BlockCD") then return end
 	if not self.Char:GetAttribute("StandEquipped") then return end
-
 	blocking.Block(self.Char)
 	local anim = self.Animator:LoadAnimation(game.ReplicatedStorage.Anims:WaitForChild("Block"))
 	anim:Play()
@@ -576,7 +544,6 @@ function module:X()
 	local conn
 	 conn = anim:GetMarkerReachedSignal("Hit"):Connect(function()
 		if not self.Char or self.Char.Humanoid.Health <= 0 or states.GetState(self.Char, "Stunned") then return end
-
 		local hit = damage.Hitbox(self.Char, self.Char.HumanoidRootPart.CFrame * CFrame.new(0,0,-3), Vector3.new(5,5,5), "Star Platinum", "Beatdown")
 		task.spawn(function()
 		if hit and #hit > 0 then
@@ -606,12 +573,10 @@ function module:X()
 			beatdownanim:Stop()
 			local finish = self.Animator:LoadAnimation(script.Beatdownfinish)
 			finish:Play()
-		
 				task.wait(1.5)
 				if states.GetState(self.Char, "Attacking") then return end
 				utility.MoveStand(self.Char, CFrame.new(-2,1,2))
 		end
-	
 		end)
 		for _, char in pairs(hit) do
 			states.SetStun(char, 4, 0, 0)
