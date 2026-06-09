@@ -7,9 +7,10 @@ local damage = require(game.ServerScriptService:WaitForChild("Damage"))
 local states = require(game.ServerScriptService:WaitForChild("States"))
 local blocking = require(game.ServerScriptService:WaitForChild("Blocking"))
 local plrdata = require(game.ServerScriptService:WaitForChild("PlrData"))
-local effect = remotes:WaitForChild("EventEffect")
+local effect = remotes:WaitForChild("EventEffect") -- event effect uses finds the module which is referenced in the first parameter and uses the function in the module referenced in the second
 local ts = game:GetService("TweenService")
 module.__index = module
+
 function module.new(player, model)
 	local char = player.Character
 	print("new")
@@ -37,7 +38,7 @@ function module.new(player, model)
 		["TheWorldStand"] = self.Animator:LoadAnimation(script["TheWorldStand"]),
 		["Hard Right"] = self.Animator:LoadAnimation(script["Hard Right"])
 		
-	}
+	} -- this loads animations
 	self.Combo = 0
 	self.lastm1 = 0
 	self.Sounds = {}
@@ -48,7 +49,7 @@ function module.new(player, model)
 	idle:Play()
 	local walk = self.Anims.Walk
 	local currentState = "Idle"
-	table.insert(self.Connections, self.Hum:GetPropertyChangedSignal("MoveDirection"):Connect(function()
+	table.insert(self.Connections, self.Hum:GetPropertyChangedSignal("MoveDirection"):Connect(function() -- this controls the walk and idle animations
 		if self.Hum.MoveDirection.Magnitude > 0 then
 			if currentState ~= "Moving" then
 				if not states.GetState(self.Char, "Stunned") then 
@@ -66,7 +67,8 @@ function module.new(player, model)
 		end
 	end)
 	)
-	gbutility.FireClientsInRadius(self.Char, effect, "Global", "PlaySound", script.SummonLine, self.Char.HumanoidRootPart, 2)
+	gbutility.FireClientsInRadius(self.Char, effect, "Global", "PlaySound", script.SummonLine, self.Char.HumanoidRootPart, 2) -- only fires the event to the players in a 60 meter radius
+
 	gbutility.FireClientsInRadius(self.Char, effect, "Global", "PlaySound", script.SummonSound, self.Char.HumanoidRootPart, 2)
 	
 	local vfx = game.ReplicatedStorage.Vfx:WaitForChild(script.Name).Summon
@@ -109,7 +111,7 @@ function module:M1(animtion)
 	if not self.Char:GetAttribute("StandEquipped") then return end
 
 	
-	if tick() - self.lastm1 > 1 then
+	if tick() - self.lastm1 > 1 then -- if its been too long the combo resets to 0
 		self.Combo = 0
 	end
 
@@ -127,7 +129,7 @@ function module:M1(animtion)
 
 	states.SetAttacking(self.Char, 0.2, 6)
 	
-	local anim = self.Anims["M"..currentCombo]
+	local anim = self.Anims["M"..currentCombo] -- finds the animation for the current combo index
 	anim.Priority = Enum.AnimationPriority.Action2
 
 	local conn
@@ -198,7 +200,7 @@ gbutility.FireClientsInRadius(self.Char, effect, "Global", "PlaySound", swing, s
 	self.lastm1 = tick()
 end
 
-function module:E()
+function module:E() -- barrage hold attack
 	if states.GetState(self.Char, "Stunned") then return end
 	if states.GetState(self.Char, "Attacking") then return end
 	if states.GetState(self.Char, "EMoveCD") then return end
@@ -226,7 +228,7 @@ function module:E()
 		game.Debris:AddItem(sound, 6)
 		self.Sounds["Barrage"] = sound
 		
-	repeat
+	repeat -- repeats for 3 seconds or until they let go of E
 		local hit = damage.Hitbox(self.Char, self.Char.HumanoidRootPart.CFrame * CFrame.new(0,0,-5), Vector3.new(5,5,7), "Star Platinum", "Barrage")
 		if #hit > 0 then
 			local sound = game.ReplicatedStorage.Sounds.Barrage:Clone()
@@ -239,7 +241,7 @@ function module:E()
 				gbutility.FireClientsInRadius(self.Char, effect, "Global", "SpawnVfxOnChar", game.ReplicatedStorage.Vfx["Star Platinum"].BarrageHit, char, 0.5)
 		end
 		task.wait(0.12)
-	until not self.Char or self.Hum.Health <= 0 or states.GetState(self.Char, "Stunned") or not states.GetState(self.Char, "Barraging") 
+	until not self.Char or self.Hum.Health <= 0 or states.GetState(self.Char, "Stunned") or not states.GetState(self.Char, "Barraging") -- ends when they let go of E
 	self:EEnd()
 	states.RemoveState(self.Char, "Attacking")
 		task.wait(0.5)
@@ -250,7 +252,7 @@ function module:E()
 	end)
 end
 
-function module:T()
+function module:T() -- ranged attack
 	print("starfinger")
 	if states.GetState(self.Char, "Stunned") then return end
 	if states.GetState(self.Char, "Attacking") then return end
@@ -270,12 +272,12 @@ function module:T()
 
 	gbutility.FireClientsInRadius(self.Char, effect, "Global", "PlaySound", script.StarFingerSound, self.Model.HumanoidRootPart, 3)
 	gbutility.FireClientsInRadius(self.Char, effect, "Global", "SpawnVfx", game.ReplicatedStorage.Vfx["Star Platinum"].StarFinger, self.Char["Torso"].CFrame * CFrame.new(0,0,-8), 2)
-	local hit = damage.Hitbox(self.Char, self.Char.HumanoidRootPart.CFrame * CFrame.new(0,0,-6), Vector3.new(2,2,12), "Star Platinum", "Star Finger")
+	local hit = damage.Hitbox(self.Char, self.Char.HumanoidRootPart.CFrame * CFrame.new(0,0,-6), Vector3.new(2,2,12), "Star Platinum", "Star Finger") -- returns the characters bound in the box
 	for i, char in pairs(hit) do
-		damage.DamageAndStun(self.Char, 95 * (1 + (self.Data.Stats["Destructive Power"] * 0.025)), char, 0.5)
+		damage.DamageAndStun(self.Char, 95 * (1 + (self.Data.Stats["Destructive Power"] * 0.025)), char, 0.5) -- damages and stuns the players with stats scaling
 	end
 	if #hit > 0 then
-		gbutility.FireClientsInRadius(self.Char, effect, "Global", "PlaySound", game.ReplicatedStorage.Sounds.StarFingerHit, self.Model.HumanoidRootPart, 3)
+		gbutility.FireClientsInRadius(self.Char, effect, "Global", "PlaySound", game.ReplicatedStorage.Sounds.StarFingerHit, self.Model.HumanoidRootPart, 3) -- spawns the hit vfx
 	end
 	task.wait(0.5)
 		if states.GetState(self.Char, "Attacking") then return end
@@ -283,7 +285,7 @@ function module:T()
 	
 end
 
-function module:R()
+function module:R() -- hard strike attack
 	if states.GetState(self.Char, "Stunned") then return end
 	if states.GetState(self.Char, "Attacking") then return end
 	if states.GetState(self.Char, "RMoveCD") then return end
@@ -299,7 +301,7 @@ function module:R()
 
 	gbutility.FireClientsInRadius(self.Char, effect, "Global", "PlaySound", script.Ora, self.Model.HumanoidRootPart, 3)
 	local conn
-	 conn = anim:GetMarkerReachedSignal("Hit"):Connect(function()
+	 conn = anim:GetMarkerReachedSignal("Hit"):Connect(function() -- same thing here spawns the hitbox and damages and stuns
 		if not self.Char or self.Char.Humanoid.Health <= 0 or states.GetState(self.Char, "Stunned") then return end
 		print("hit")
 		local hit = damage.Hitbox(self.Char, self.Char.HumanoidRootPart.CFrame * CFrame.new(0,0,-3), Vector3.new(5,5,5), "Star Platinum", "Ora")
@@ -309,7 +311,7 @@ function module:R()
 			gbutility.FireClientsInRadius(self.Char, effect, "Global", "SpawnVfx", game.ReplicatedStorage.Vfx["Star Platinum"].OraHit, char.Torso.CFrame, 2)
 			local player = game.Players:GetPlayerFromCharacter(char)
 			if player then
-				remotes.CameraShake:FireClient(player,  3, 3)
+				remotes.CameraShake:FireClient(player,  3, 3) -- shakes the camera on the victims client
 			end
 		end
 		if #hit > 0 then
@@ -317,7 +319,7 @@ function module:R()
 			gbutility.FireClientsInRadius(self.Char, effect, "Global", "PlaySound", script.Heavyhit, self.Model.HumanoidRootPart, 2)
 			local player = game.Players:GetPlayerFromCharacter(self.Char)
 			if player then
-				remotes.CameraShake:FireClient(player,  3, 3)
+				remotes.CameraShake:FireClient(player,  3, 3) -- shakes their camera on their client
 			end
 		end
 		conn:Disconnect()
@@ -330,7 +332,7 @@ function module:R()
 
 end
 
-function module:EEnd()
+function module:EEnd() -- runs when they let go of E
 	states.RemoveState(self.Char, "Barraging")
 
 	if self.Anims["Barrage"] then
@@ -356,7 +358,7 @@ function module:EEnd()
 	remotes.EventEffect:FireAllClients("Global", "DestroyVfxOnChar", self.Char, "Barrage")
 end
 
-function module:V() 
+function module:V() -- this teleports the player behind the closest character
 	if states.GetState(self.Char, "Stunned") then return end
 	if states.GetState(self.Char, "Attacking") then return end
 	if states.GetState(self.Char, "VMoveCD") then return end
@@ -428,7 +430,7 @@ function module:V()
 	end
 end
 
-function module:C() 
+function module:C() -- time stop ability 
 	if states.GetState(self.Char, "Stunned") then return end
 	if states.GetState(self.Char, "Attacking") then return end
 	if states.GetState(self.Char, "CMoveCD") then return end
@@ -474,13 +476,7 @@ function module:C()
 	table.insert(plrs, game.Players:GetPlayerFromCharacter(self.Char))
 
 	
-	for i, v in pairs(chars) do
-		print("Timestopped", v.Name)
-		if states.GetState(v, "Attacking") then
-			print("attacking")
-		end
-	
-		
+	for i, v in pairs(chars) do -- freezes and stuns all the players in the radius
 		states.SetStun(v, 4, 0, 0)
 		local root = v:FindFirstChild("HumanoidRootPart")
 		local enemyhum = v:FindFirstChild("Humanoid")
@@ -530,7 +526,7 @@ function module:Unblock()
 end
 
 
-function module:X() 
+function module:X() -- beatdown attack
 	if states.GetState(self.Char, "Stunned") then return end
 	if states.GetState(self.Char, "Attacking") then return end
 	if states.GetState(self.Char, "XMoveCD") then return end
@@ -607,7 +603,7 @@ function module:X()
 			att1.Parent = attackerRoot
 			att1.Position = Vector3.new(0, 0, -5)
 
-			local alignPos = Instance.new("AlignPosition")
+			local alignPos = Instance.new("AlignPosition") -- keeps the victim in place as the animation runs
 			alignPos.Attachment0 = att0
 			alignPos.Attachment1 = att1
 			alignPos.RigidityEnabled = true
@@ -629,7 +625,7 @@ function module:X()
 				
 			end
 			
-			task.spawn(function()
+			task.spawn(function() -- barrages of punches
 				for i = 1, 17 do
 					if not self.Char or self.Char.Humanoid.Health <= 0 or states.GetState(self.Char, "Stunned") then return end
 
@@ -685,7 +681,7 @@ function module:X()
 				if player then
 					remotes.CameraShake:FireClient(player,  2, 3)
 				end
-				damage.DamageAndStun(self.Char, 22 * (1 + (self.Data.Stats["Destructive Power"] * 0.025)), char, 0.5, 30, 0.5)
+				damage.DamageAndStun(self.Char, 22 * (1 + (self.Data.Stats["Destructive Power"] * 0.025)), char, 0.5, 30, 0.5) -- one final punch and knockback
 				task.delay(1, function()
 					if hum then
 						hum:SetStateEnabled(Enum.HumanoidStateType.FallingDown, true)
